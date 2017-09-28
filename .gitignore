@@ -1,0 +1,11 @@
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea
+
+# Scala
+target
+
+# OS X
+.DS_Store
