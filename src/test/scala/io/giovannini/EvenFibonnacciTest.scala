@@ -7,7 +7,7 @@ class EvenFibonnacciTest extends WordSpec {
   "fibonnacci" should {
 
     "return the right value for n = 1" in {
-      assert(EvenFibonnacci.fibonnacci(1) == Seq(1))
+      assert(EvenFibonnacci.fibonnacci(1) == Seq())
     }
 
     "return the right value for n = 2" in {
