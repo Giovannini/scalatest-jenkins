@@ -19,13 +19,6 @@ sbt -v $SBT_OPTS test:compile \
   )
 
 # Tests
-logging "Running tests"
-sbt -v $SBT_OPTS test \
-  || (
-  logging "Aborting the build: tests failed"
-  exit 2
-)
-
-logging "Tests successful"
+./scripts/jenkins/test.sh
 
 logging "Finished building"

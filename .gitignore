@@ -9,3 +9,6 @@ target
 
 # OS X
 .DS_Store
+
+# Project
+testMessage.json
