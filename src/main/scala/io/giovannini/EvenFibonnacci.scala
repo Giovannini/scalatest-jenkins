@@ -36,4 +36,6 @@ object EvenFibonnacci {
     fibonacciUnder(n).filter(condition).sum
   }
 
+  dazdza
+
 }

@@ -16,7 +16,7 @@ class EvenFibonnacciTest extends WordSpec {
 
     "return the right value for n = 10" in {
       assert(
-        EvenFibonnacci.fibonnacci(10) == Seq(1, 1, 2, 3, 5, 8, 13, 21, 34, 55))
+        EvenFibonnacci.fibonnacci(10) == Seq(1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55))
     }
 
   }
