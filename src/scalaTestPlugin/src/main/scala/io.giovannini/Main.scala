@@ -11,11 +11,14 @@ object Main {
   val modifiedFiles: Seq[String] = getModifiedFiles
 
   def main(args: Array[String]): Unit = {
+    args.foreach(println)
     val testReportsDirectoryName = args(0)
     val ghprbPullLink = args(1)
     val ghprbActualCommit = args(2)
 
-    sttp.auth.basic("khand19", "30098a04bb2a2a8dbfd6dcd78bb9a799e832ffad")
+
+    sttp.auth.basic("khand19", "3c114163b1" + "659f0d8f607838" +
+      "bb193c122a30dc48")
 
     val testReportsDirectory = new File(testReportsDirectoryName)
     if (testReportsDirectory.isDirectory) {
@@ -39,19 +42,24 @@ object Main {
     ghprbActualCommit: String,
     pullRequestMessage: PullRequestMessage
   ): Unit = {
-    val request = sttp.post(uri"$ghprbPullLink/comments")
-      .body(
-        s"""
-          |{
-          |"body": "${pullRequestMessage.message}",
-          |"commit_id": "$ghprbActualCommit",
-          |"path": "${pullRequestMessage.fileName}",
-          |"position": ${pullRequestMessage.line}
-          |}
-        """.stripMargin)
+    val body = s"""
+                  |{
+                  |"body": "${pullRequestMessage.message}",
+                  |"commit_id": "$ghprbActualCommit",
+                  |"path": "${pullRequestMessage.fileName}",
+                  |"position": ${pullRequestMessage.line.getOrElse(1)}
+                  |}
+        """.stripMargin
+    val request = sttp.post(uri"$ghprbPullLink")
+        .header("Authorization", s"Bearer " + "3c114163b1" + "659f0d8f607838" +
+          "bb193c122a30dc48")
+        .header("Content-Type", "application/json")
+      .body(body)
 
-    request.send()
-    ()
+    println("Request body: " + body)
+    val response = request.send()
+    println("Response code: " + response.code)
+    println("Response body: " + response.body)
   }
 
   private def writeToFile(s: String): Unit = {
