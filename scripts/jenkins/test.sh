@@ -8,6 +8,7 @@ logging "Running tests"
 sbt test \
   || (
     logging "Got errors in some tests. Analyzing that..."
+    git diff --name-only master > ./modifiedFiles
     sbt "scalaTestPlugin/run src/project/target/test-reports"
     cat ./testMessages.json
     exit 2

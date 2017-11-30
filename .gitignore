@@ -11,4 +11,5 @@ target
 .DS_Store
 
 # Project
-testMessage.json
+testMessages.json
+modifiedFiles
