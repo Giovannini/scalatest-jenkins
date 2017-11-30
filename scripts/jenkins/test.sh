@@ -9,7 +9,7 @@ sbt test \
   || (
     logging "Got errors in some tests. Analyzing that..."
     git diff --name-only master > ./modifiedFiles
-    sbt "scalaTestPlugin/run src/project/target/test-reports"
+    sbt "scalaTestPlugin/run src/project/target/test-reports ${ghprbPullLink} ${ghprbActualCommit}"
     cat ./testMessages.json
     exit 2
   )

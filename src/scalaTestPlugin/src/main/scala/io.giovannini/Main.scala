@@ -2,26 +2,56 @@ package io.giovannini
 
 import java.io.{File, FileWriter}
 import scala.io.Source
-import scala.xml.Node
+
+import com.softwaremill.sttp._
+import io.giovannini.model.PullRequestMessage
 
 object Main {
+  implicit val backend: SttpBackend[Id, Nothing] = HttpURLConnectionBackend()
+  val modifiedFiles: Seq[String] = getModifiedFiles
+
   def main(args: Array[String]): Unit = {
-    val testReportsDirectoryName = args.head
-    val modifiedFiles = getModifiedFiles
+    val testReportsDirectoryName = args(0)
+    val ghprbPullLink = args(1)
+    val ghprbActualCommit = args(2)
+
+    sttp.auth.basic("khand19", "30098a04bb2a2a8dbfd6dcd78bb9a799e832ffad")
 
     val testReportsDirectory = new File(testReportsDirectoryName)
     if (testReportsDirectory.isDirectory) {
-      val jsValues = (for {
+      val pullRequestMessages = for {
         file <- testReportsDirectory.listFiles().toSeq
         if file.isFile
         testCase <- scala.xml.XML.loadFile(file) \\ "testsuite" \\ "testcase"
         failure <- testCase \\ "failure"
         message <- failure.attribute("message").toSeq
-      } yield PullRequestMessage(testCase, message, modifiedFiles))
-        .map(PullRequestMessage.writes)
+      } yield PullRequestMessage(testCase, message, modifiedFiles)
 
-      writeToFile(s"""{"messages": [${jsValues.mkString(", ")}]}""")
+      pullRequestMessages
+        .foreach(p => sendMessageOnGitHub(ghprbPullLink, ghprbActualCommit, p))
+
+      writeToFile(s"""{"messages": [${pullRequestMessages.map(PullRequestMessage.writes).mkString(", ")}]}""")
     }
+  }
+
+  def sendMessageOnGitHub(
+    ghprbPullLink: String,
+    ghprbActualCommit: String,
+    pullRequestMessage: PullRequestMessage
+  ): Unit = {
+    val request = sttp.post(uri"$ghprbPullLink/comments")
+      .body(
+        s"""
+          |{
+          |"body": "${pullRequestMessage.message}",
+          |"commit_id": "$ghprbActualCommit",
+          |"path": "${pullRequestMessage.fileName}",
+          |"position": ${pullRequestMessage.line}
+          |}
+        """.stripMargin)
+
+    request.send()
+    ()
   }
 
   private def writeToFile(s: String): Unit = {
@@ -34,48 +64,4 @@ object Main {
 
   private def getModifiedFiles: Seq[String] =
     Source.fromFile("modifiedFiles").getLines().toSeq
-
-  private def buildFilename(classname: String, modifiedFiles: Seq[String]): String = {
-    val fakeFilename = classname.replace(".", "/") + ".scala"
-    println(modifiedFiles.mkString(","))
-    println(fakeFilename)
-    modifiedFiles.find(_.endsWith(fakeFilename)).getOrElse("unknown")
-  }
-
-  case class PullRequestMessage(
-    fileName: String,
-    className: String,
-    testName: String,
-    line: Option[Int],
-    message: String
-  )
-
-  object PullRequestMessage {
-    def apply(
-      testCase: Node,
-      message: Seq[Node],
-      modifiedFiles: Seq[String]
-    ): PullRequestMessage = {
-      val classname = testCase.attribute("classname")
-      val testName = testCase.attribute("name")
-      PullRequestMessage(
-        fileName = buildFilename(classname.map(_.text).get, modifiedFiles),
-        className = classname.map(_.text).get,
-        testName = testName.map(_.text).get,
-        line = None,
-        message = message.text
-      )
-    }
-
-    def writes(message: PullRequestMessage): String =
-      s"""
-        |{
-        |"filename": "${message.fileName}",
-        |"className": "${message.className}",
-        |"testName": "${message.testName}",
-        |"line": "${message.line.getOrElse(0)}",
-        |"message": "${message.message}"
-        |}
-      """.stripMargin
-  }
 }
