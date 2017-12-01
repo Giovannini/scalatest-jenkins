@@ -21,4 +21,5 @@ class EvenFibonnacciTest extends WordSpec {
 
   }
 
+  
 }
