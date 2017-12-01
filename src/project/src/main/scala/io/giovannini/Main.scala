@@ -6,6 +6,12 @@ object Main extends App {
 
   val x = Test.test()
 
+
+
+
+
+  val y = Test.test()
+
   println(result)
 
 }
