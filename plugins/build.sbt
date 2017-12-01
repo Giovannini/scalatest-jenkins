@@ -12,7 +12,8 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= Seq(
       "com.lihaoyi"             %% "fastparse"  % "1.0.0",
       "com.softwaremill.sttp"   %% "core"       % "1.1.1",
-      "org.scala-lang.modules"  %% "scala-xml"  % "1.0.6"
+      "org.scala-lang.modules"  %% "scala-xml"  % "1.0.6",
+      "com.typesafe.play"       %% "play-json"  % "2.6.7"
     ),
     scalacOptions ++= Seq(
       "-unchecked",

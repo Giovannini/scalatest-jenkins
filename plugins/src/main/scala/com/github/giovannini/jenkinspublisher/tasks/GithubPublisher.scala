@@ -1,11 +1,14 @@
 package com.github.giovannini.jenkinspublisher.tasks
 
+import com.github.giovannini.jenkinspublisher.github.GithubApi
 import com.softwaremill.sttp._
 import com.github.giovannini.jenkinspublisher.model.{GitHubMessage, PullRequestFileMessage, PullRequestGlobalMessage}
 
 object GithubPublisher {
 
   implicit private val backend: SttpBackend[Id, Nothing] = HttpURLConnectionBackend()
+
+  val botLogin = "khand19"
 
   def publishTestResult(githubMessage: Seq[GitHubMessage]): Unit = {
     (
@@ -18,7 +21,20 @@ object GithubPublisher {
         val ghprbPullLink = s"https://api.github.com/repos/$ghprbGhRepository/pulls/$ghprbPullId/comments"
         val ghprbIssueLink = s"https://api.github.com/repos/$ghprbGhRepository/issues/$ghprbPullId/comments"
 
+        val exitingComments = GithubApi.loadPullRequestComments(ghprbGhRepository, ghprbPullId.toInt)
+          .getOrElse(Seq.empty)
+          .filter(_.user.login == botLogin)
+          .groupBy(c => s"${c.path}#${c.position}")
+
         githubMessage
+          .filter {
+            case m: PullRequestFileMessage =>
+              !exitingComments
+                .getOrElse(s"${m.path}#${m.position}", Seq.empty)
+                .exists(_.body == m.message)
+
+            case m: PullRequestGlobalMessage => true
+          }
           .foreach(send(ghprbPullLink, ghprbIssueLink))
     }
   }
