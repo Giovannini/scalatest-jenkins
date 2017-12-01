@@ -14,8 +14,6 @@ You can create a simple bash script running your tests:
 
 sbt test \
   || ( # sbt test results with some error found
-    git diff --name-only origin/master > ./modifiedFiles
-    git ls-files > ./allfiles
     sbt test2jenkins # <- WOW ->
     exit 1
   )

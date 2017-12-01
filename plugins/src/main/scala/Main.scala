@@ -37,7 +37,7 @@ object Main extends AutoPlugin {
 
   lazy val readTestTask =
     Def.task {
-      ReadTest.task
+      ReadTest.task()
     }
 
   lazy val compilationReportTask =
