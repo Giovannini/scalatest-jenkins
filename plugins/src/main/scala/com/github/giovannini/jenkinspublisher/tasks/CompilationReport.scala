@@ -1,11 +1,9 @@
 package com.github.giovannini.jenkinspublisher.tasks
 
-import scala.io.Source
 import scala.sys.process.Process
 
+import com.github.giovannini.jenkinspublisher.model.{Position, Report}
 import fastparse.all._
-
-import com.github.giovannini.jenkinspublisher.model.{Report, Position}
 
 case class CompilationReport(
   warnings: Seq[Report],
@@ -13,7 +11,7 @@ case class CompilationReport(
 )
 
 object CompilationReport {
-  def task = {
+  def task() = {
     println("CompilationReport empty task…")
   }
 
@@ -41,10 +39,9 @@ object CompilationReport {
 
     reports.parse(input) match {
       case Parsed.Success(reports, _) => reports
-      case Parsed.Failure(expected, failedIndex, extra) => {
+      case Parsed.Failure(expected, failedIndex, extra) =>
         println(s"Failure: expected $expected at $failedIndex. $extra")
         Nil
-      }
     }
   }
 

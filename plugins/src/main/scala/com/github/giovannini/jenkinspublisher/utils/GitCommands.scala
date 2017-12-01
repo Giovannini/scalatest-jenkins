@@ -1,4 +1,4 @@
-package utils
+package com.github.giovannini.jenkinspublisher.utils
 
 import scala.sys.process._
 

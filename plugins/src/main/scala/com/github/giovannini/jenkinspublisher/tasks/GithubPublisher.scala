@@ -15,8 +15,8 @@ object GithubPublisher {
       case (None, _) => println("Please set env variable 'ghprbGhRepository'.")
       case (_, None) => println("Please set env variable 'ghprbPullId'.")
       case (Some(ghprbGhRepository), Some(ghprbPullId)) =>
-        val ghprbPullLink = s"https://api.github.com/repos/${ghprbGhRepository}/pulls/${ghprbPullId}/comments"
-        val ghprbIssueLink = s"https://api.github.com/repos/${ghprbGhRepository}/issues/${ghprbPullId}/comments"
+        val ghprbPullLink = s"https://api.github.com/repos/$ghprbGhRepository/pulls/$ghprbPullId/comments"
+        val ghprbIssueLink = s"https://api.github.com/repos/$ghprbGhRepository/issues/$ghprbPullId/comments"
 
         githubMessage
           .foreach(send(ghprbPullLink, ghprbIssueLink))

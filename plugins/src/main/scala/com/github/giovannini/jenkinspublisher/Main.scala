@@ -1,11 +1,7 @@
 package com.github.giovannini.jenkinspublisher
 
-import java.io.File
-import scala.io.Source
-
-import com.github.giovannini.jenkinspublisher.tasks.{ReadTest, CompilationReport}
-import sbt._
-import sbt.Keys._
+import com.github.giovannini.jenkinspublisher.tasks.{CompilationReport, ReadTest}
+import sbt.{AutoPlugin, Def, settingKey, taskKey}
 
 object Main extends AutoPlugin {
 
@@ -42,6 +38,6 @@ object Main extends AutoPlugin {
 
   lazy val compilationReportTask =
     Def.task {
-      CompilationReport.task
+      CompilationReport.task()
     }
 }

@@ -3,7 +3,7 @@ package com.github.giovannini.jenkinspublisher.tasks
 import com.github.giovannini.jenkinspublisher.model.GitHubMessage
 import java.io.File
 
-import utils.GitCommands
+import com.github.giovannini.jenkinspublisher.utils.GitCommands
 
 object ReadTest {
 
