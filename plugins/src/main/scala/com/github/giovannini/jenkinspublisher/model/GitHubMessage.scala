@@ -17,7 +17,7 @@ case class PullRequestGlobalMessage(
 ) extends GitHubMessage {
   val body = s"""
     |{
-    |"body": "Unmodified files make compilation failed : <br>$filename : ${line.map(a => s"$a : ")}$message"
+    |"body": "🐙 Unmodified files make compilation failed : <br>$filename: ${line.map(a => s"$a : ")}$message"
     |}
   """.stripMargin
 }
@@ -32,7 +32,7 @@ case class PullRequestFileMessage(
 
   val body = s"""
     |{
-    |"body": "$message",
+    |"body": "🙅 $message",
     |"commit_id": "$commitId",
     |"path": "$path",
     |"position": ${position + 2}
