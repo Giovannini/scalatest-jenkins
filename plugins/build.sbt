@@ -10,8 +10,13 @@ lazy val root = (project in file(".")).
     sbtPlugin := true,
     sbtVersion := "1.0.0",
     libraryDependencies ++= Seq(
-      "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
-      "com.softwaremill.sttp" %% "core" % "1.1.1"
+      "com.lihaoyi"             %% "fastparse"  % "1.0.0",
+      "com.softwaremill.sttp"   %% "core"       % "1.1.1",
+      "org.scala-lang.modules"  %% "scala-xml"  % "1.0.6"
+    ),
+    scalacOptions ++= Seq(
+      "-unchecked",
+      "-deprecation"
     ),
     publishMavenStyle := true,
     publishTo := Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/content/repositories/snapshots"),
