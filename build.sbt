@@ -6,8 +6,6 @@ scalaVersion := "2.12.4"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
-lazy val scalaTestPlugin = application("scalaTestPlugin", "src/scalaTestPlugin")
-
 lazy val realProject = application("project", "src/project")
 
 def application(id: String, path: String) = {

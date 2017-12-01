@@ -1,4 +1,4 @@
-package io.giovannini.jenkinspublisher.model
+package com.github.giovannini.jenkinspublisher.model
 
 import scala.xml.Node
 

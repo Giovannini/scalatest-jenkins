@@ -13,7 +13,7 @@ sbt test \
     logging "Got errors in some tests. Analyzing that..."
     git diff --name-only origin/master > ./modifiedFiles
     git ls-files > ./allfiles
-    sbt "scalaTestPlugin/run src/project/target/test-reports ${apiLink} ${ghprbActualCommit} ${apiLinkIssue}"
+    sbt test2jenkins
     cat ./testMessages.json
     exit 2
   )

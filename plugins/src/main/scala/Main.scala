@@ -1,9 +1,9 @@
-package io.giovannini.jenkinspublisher
+package com.github.giovannini.jenkinspublisher
 
 import java.io.File
 import scala.io.Source
 
-import io.giovannini.jenkinspublisher.tasks.ReadTest
+import com.github.giovannini.jenkinspublisher.tasks.ReadTest
 import sbt.Keys._
 import sbt._
 
@@ -14,7 +14,7 @@ object Main extends AutoPlugin {
 
     val hello = taskKey[Unit]("say hello")
 
-    val readTest = taskKey[Unit]("Read test reports")
+    val test2jenkins = taskKey[Unit]("Read test reports")
   }
 
   import autoImport._
@@ -24,7 +24,7 @@ object Main extends AutoPlugin {
   override lazy val buildSettings = Seq(
     greeting := "Hi!",
     hello := helloTask.value,
-    readTest := readTestTask.value
+    test2jenkins := readTestTask.value
   )
 
   lazy val helloTask =
