@@ -46,27 +46,49 @@ object GitHubMessage {
     commitId: String,
     testCase: Node,
     modifiedFiles: Seq[String],
-    allfiles: Seq[String],
+    allFiles: Seq[String],
     contentError: Node
   ): Option[GitHubMessage] = {
     val classname = testCase.attribute("classname").get.text
-    buildFilename(classname, modifiedFiles) match {
+    def pathFrom(xs: Seq[String]) = buildFilename(classname, xs)
+    val line = extractLine(contentError, classname.split("\\.").last)
+    apply(message.text, commitId, pathFrom _, modifiedFiles, allFiles, line)
+  }
+
+  def apply(
+    kind: String,
+    commitId: String,
+    report: Report,
+    modifiedFiles: Seq[String],
+    allFiles: Seq[String]
+  ): Option[GitHubMessage] = {
+    val message = s"[$kind] ${report.message}"
+    def pathFrom(xs: Seq[String]) = findPathFromAbsolute(report.path, xs)
+    apply(message, commitId, pathFrom _, modifiedFiles, allFiles, report.position.line)
+  }
+
+  def apply(
+    message: String,
+    commitId: String,
+    pathFrom: Seq[String] => Option[String],
+    modifiedFiles: Seq[String],
+    allFiles: Seq[String],
+    line: Option[Int]
+  ): Option[GitHubMessage] =
+    pathFrom(modifiedFiles) match {
       case Some(path) =>
-        val line = extractLine(contentError, classname.split("\\.").last)
         Some(PullRequestFileMessage(
-          message = message.text,
+          message = message,
           commitId = commitId,
           path = path,
           line = line,
           position = extractPosition(path, line)
         ))
       case None =>
-        buildFilename(classname, allfiles).map { filename =>
-          PullRequestGlobalMessage(filename, message.text, None)
+        pathFrom(allFiles).map { filename =>
+          PullRequestGlobalMessage(filename, message, None)
         }
     }
-
-  }
 
   private def buildFilename(
     classname: String,
@@ -75,6 +97,9 @@ object GitHubMessage {
     val fakeFilename = classname.replace(".", "/") + ".scala"
     modifiedFiles.find(_.endsWith(fakeFilename))
   }
+
+  private def findPathFromAbsolute(absolutePath: String, paths: Seq[String]): Option[String] =
+    paths.find(absolutePath.endsWith _)
 
   private def extractLine(failure: Node, fileName: String): Option[Int] = {
       val num = s".*$fileName\\.scala:(\\d+).*".r
