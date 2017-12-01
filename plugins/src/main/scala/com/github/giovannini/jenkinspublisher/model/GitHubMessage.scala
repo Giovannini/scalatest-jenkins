@@ -35,7 +35,7 @@ case class PullRequestFileMessage(
     |"body": "$message",
     |"commit_id": "$commitId",
     |"path": "$path",
-    |"position": ${position + 1}
+    |"position": ${position + 2}
     |}
   """.stripMargin // We made position +1 because zipWithIndex start with 0
 }

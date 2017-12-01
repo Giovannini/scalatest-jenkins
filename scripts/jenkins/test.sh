@@ -11,9 +11,6 @@ logging "Running tests"
 sbt test \
   || (
     logging "Got errors in some tests. Analyzing that..."
-    git diff --name-only origin/master > ./modifiedFiles
-    git ls-files > ./allfiles
-    ls
     sbt test2jenkins
     exit 2
   )
