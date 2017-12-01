@@ -12,7 +12,16 @@ case class CompilationReport(
 
 object CompilationReport {
   def task() = {
-    println("CompilationReport empty task…")
+    println("CompilationReport...")
+    sys.env.get("ghprbActualCommit").fold {
+      println("Please set env variable 'ghprbActualCommit'.")
+    } { commitId =>
+      val report = fetch()
+      GithubPublisher.publishTestResult {
+        report.warnings.map(_.toGitHubMessage(commitId)) ++
+          report.errors.map(_.toGitHubMessage(commitId))
+      }
+    }
   }
 
   def fetch(): CompilationReport = {
