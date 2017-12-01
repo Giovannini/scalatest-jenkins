@@ -4,9 +4,6 @@ logging() {
   echo "#>>>" `date +"%H:%M:%S.%3N"` $1
 }
 
-apiLink="https://api.github.com/repos/${ghprbGhRepository}/pulls/${ghprbPullId}/comments"
-apiLinkIssue="https://api.github.com/repos/${ghprbGhRepository}/issues/${ghprbPullId}/comments"
-
 logging "Running tests"
 sbt test \
   || (
