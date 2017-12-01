@@ -2,16 +2,16 @@ package io.giovannini
 
 import org.scalatest.WordSpec
 
-class EvenFibonnacciTest extends WordSpec {
+class EvenFibonnacciTest3 extends WordSpec {
 
   "fibonnacci" should {
 
     "return the right value for n = 1" in {
-      assert(EvenFibonnacci.fibonnacci(1) == Seq(3))
+      assert(EvenFibonnacci.fibonnacci(1) == Seq())
     }
 
     "return the right value for n = 2" in {
-      assert(EvenFibonnacci.fibonnacci(2) == Seq(1, 1, 2))
+      assert(EvenFibonnacci.fibonnacci(2) == Seq(1, 1))
     }
 
     "return the right value for n = 10" in {
@@ -21,5 +21,4 @@ class EvenFibonnacciTest extends WordSpec {
 
   }
 
-  
 }
