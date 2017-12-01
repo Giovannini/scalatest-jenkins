@@ -2,7 +2,7 @@ package io.giovannini
 
 import org.scalatest.WordSpec
 
-class EvenFibonnacciTest extends WordSpec {
+class EvenFibonnacciTest2 extends WordSpec {
 
   "fibonnacci" should {
 
