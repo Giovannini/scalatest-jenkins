@@ -17,8 +17,7 @@ object EvenFibonnacci {
     fibonnacciRec(n, Nil).reverse
   }
 
-  def fibonacciUnder(n: Int): Seq[Int] = {
-    @scala.annotation.tailrec
+  def fibonacciUndr(n: Int): Seq[Int] = {
     def fibonnacciUnderRec(n: Int, acc: Seq[Int]): Seq[Int] = {
       if (n <= 0) Nil
       else
