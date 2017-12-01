@@ -32,7 +32,7 @@ object ReadTest {
         testCase <- scala.xml.XML.loadFile(file) \\ "testsuite" \\ "testcase"
         failure <- testCase \\ "failure"
         message <- failure.attribute("message").toSeq
-        gitHubMessage <- GitHubMessage(message, commitId, testCase, modifiedFiles, allFiles).toSeq
+        gitHubMessage <- GitHubMessage(message, commitId, testCase, modifiedFiles, allFiles, failure).toSeq
       } yield gitHubMessage
     }
   }

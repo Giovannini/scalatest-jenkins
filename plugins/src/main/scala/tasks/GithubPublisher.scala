@@ -53,5 +53,28 @@ object GithubPublisher {
     println("Response code: " + response.code)
     println("Response body: " + response.body)
   }
+
+  def findDiff : String= {
+    (
+      sys.env.get("ghprbGhRepository"),
+      sys.env.get("ghprbPullId")
+    ) match {
+      case (None, _) => {
+        println("Please set env variable 'ghprbGhRepository'.")
+        ""
+      }
+      case (_, None) => {
+        println("Please set env variable 'ghprbPullId'.")
+        ""
+      }
+      case (Some(ghprbGhRepository), Some(ghprbPullId)) =>
+        val pr = s"https://api.github.com/repos/${ghprbGhRepository}/pulls/${ghprbPullId}"
+        val request = sttp.get(uri"$pr").header("Accept","application/vnd.github.v3.diff")
+        val response = request.send()
+
+        response.body.toString
+
+    }
+  }
   
 }
