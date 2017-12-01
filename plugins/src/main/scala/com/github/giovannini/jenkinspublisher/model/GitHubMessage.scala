@@ -32,12 +32,12 @@ case class PullRequestFileMessage(
 
   val body = s"""
     |{
-    |"body": "🙅 $message",
+    |"body": "$message",
     |"commit_id": "$commitId",
     |"path": "$path",
-    |"position": ${position + 2}
+    |"position": $position
     |}
-  """.stripMargin // We made position +1 because zipWithIndex start with 0
+  """.stripMargin
 }
 
 object GitHubMessage {
@@ -54,11 +54,11 @@ object GitHubMessage {
       case Some(path) =>
         val line = extractLine(contentError, classname.split("\\.").last)
         Some(PullRequestFileMessage(
-          message = message.text,
+          message = s"🙅 ${message.text}",
           commitId = commitId,
           path = path,
           line = line,
-          position = extractPosition(path, line)
+          position = extractPosition(path, line) + 2 // We made position +1 because zipWithIndex start with 0
         ))
       case None =>
         buildFilename(classname, allfiles).map { filename =>
