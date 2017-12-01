@@ -6,7 +6,6 @@ import com.softwaremill.sttp._
 import io.giovannini.model.PullRequestMessage
 
 import scala.io.Source
-import scala.xml.Node
 
 object Main {
   implicit val backend: SttpBackend[Id, Nothing] = HttpURLConnectionBackend()
@@ -32,8 +31,7 @@ object Main {
         testCase <- scala.xml.XML.loadFile(file) \\ "testsuite" \\ "testcase"
         failure <- testCase \\ "failure"
         message <- failure.attribute("message").toSeq
-        _ <- test(failure)
-      } yield PullRequestMessage(testCase, message, modifiedFiles, allfiles)
+      } yield PullRequestMessage(testCase, message, modifiedFiles, allfiles, failure)
 
       pullRequestMessages
         .foreach(p => p.send(ghprbActualCommit, ghprbPullLink, ghprbIssueLink))
@@ -52,9 +50,4 @@ object Main {
 
   private def getModifiedFiles(source:String): Seq[String] =
     Source.fromFile(source).getLines().toSeq
-
-  def test(failure: Node) : Node = {
-    println(failure.text)
-    failure
-  }
 }
