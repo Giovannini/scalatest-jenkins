@@ -2,8 +2,11 @@ package com.github.giovannini.jenkinspublisher.tasks
 
 import scala.sys.process.Process
 
-import com.github.giovannini.jenkinspublisher.model.{Position, Report}
 import fastparse.all._
+
+import com.github.giovannini.jenkinspublisher.model.GitHubMessage
+import com.github.giovannini.jenkinspublisher.model.{Position, Report}
+import com.github.giovannini.jenkinspublisher.utils.GitCommands
 
 case class CompilationReport(
   warnings: Seq[Report],
@@ -12,16 +15,34 @@ case class CompilationReport(
 
 object CompilationReport {
   def task() = {
-    println("CompilationReport empty task…")
-  }
-
-  def fetch(): CompilationReport = {
     val compilationOutput: Stream[String] = Process("sbt -Dsbt.log.noformat=true compile").lineStream_!
 
-    CompilationReport(
-      warnings = parseReports("warn", compilationOutput),
-      errors = parseReports("error", compilationOutput)
-    )
+    val warnings = parseReports("warn", compilationOutput)
+    val errors = parseReports("error", compilationOutput)
+
+    val githubMessages: Seq[GitHubMessage] =
+      sys.env.get("ghprbActualCommit") match {
+        case Some(commitId) =>
+          (  warnings.flatMap(GitHubMessage("warning", commitId, _, modifiedFiles, allFiles))
+          ++ errors.flatMap(GitHubMessage("error", commitId, _, modifiedFiles, allFiles))
+          )
+        case _ =>
+          println("Please set env variable 'ghprbActualCommit'.")
+          Seq.empty[GitHubMessage]
+      }
+
+    if (githubMessages.nonEmpty)
+      GithubPublisher.publishTestResult(githubMessages)
+  }
+
+  private def modifiedFiles: Seq[String] = {
+    val modifiedFilesKey = "modifiedFiles"
+    GitCommands.diff(modifiedFilesKey).split("\n")
+  }
+
+  private def allFiles: Seq[String] = {
+    val allfiles = "allfiles"
+    GitCommands.lsFiles(allfiles).split("\n")
   }
 
   private def parseReports(kind: String, lines: Seq[String]): Seq[Report] = {
@@ -46,7 +67,7 @@ object CompilationReport {
   }
 
   private def reportFromTree(tree: (String, Int, Int, String, Seq[String])): Report = {
-    val (filename, line, column, errorTitle, errorLines) = tree
-    Report(filename, Position(Some(line), Some(column)), errorTitle ++ errorLines.mkString("\n", "\n", ""))
+    val (filename, line, column, errorTitle, _) = tree
+    Report(filename, Position(Some(line), Some(column)), errorTitle)
   }
 }

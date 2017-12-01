@@ -21,6 +21,7 @@ def application(id: String, path: String) = {
       ),
       buildInfoPackage := "sbt",
       buildInfoOptions += BuildInfoOption.BuildTime,
-      javaOptions in Universal += "-Dfile.encoding=UTF-8"
+      javaOptions in Universal += "-Dfile.encoding=UTF-8",
+      scalacOptions ++= Seq("-deprecation")
     )
 }

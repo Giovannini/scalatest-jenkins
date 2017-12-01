@@ -10,7 +10,7 @@ lazy val root = (project in file(".")).
     sbtPlugin := true,
     sbtVersion := "1.0.0",
     libraryDependencies ++= Seq(
-      "com.lihaoyi"             %% "fastparse"  % "1.0.0",
+      "com.lihaoyi"             %% "fastparse"  % "0.4.2",
       "com.softwaremill.sttp"   %% "core"       % "1.1.1",
       "org.scala-lang.modules"  %% "scala-xml"  % "1.0.6"
     ),
