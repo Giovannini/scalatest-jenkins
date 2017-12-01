@@ -1,8 +1,8 @@
 package com.github.giovannini.jenkinspublisher.tasks
 
+import com.github.giovannini.jenkinspublisher.model.GitHubMessage
 import java.io.File
 import scala.io.Source
-import com.github.giovannini.jenkinspublisher.model.GitHubMessage
 
 object ReadTest {
 
