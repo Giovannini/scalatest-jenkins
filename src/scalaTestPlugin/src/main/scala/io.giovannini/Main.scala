@@ -28,6 +28,7 @@ object Main {
         testCase <- scala.xml.XML.loadFile(file) \\ "testsuite" \\ "testcase"
         failure <- testCase \\ "failure"
         message <- failure.attribute("message").toSeq
+        
       } yield PullRequestMessage(testCase, message, modifiedFiles)
 
       pullRequestMessages
