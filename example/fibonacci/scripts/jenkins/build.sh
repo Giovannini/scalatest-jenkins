@@ -10,7 +10,7 @@ export SBT_OPTS="-Dcompile-doc=true -Dsbt.log.noformat=true -Dtest.scale-factor=
 export JAVA_OPTS="-Xmx2048m"
 
 logging "Publishing plugin"
-sbt publishLocal
+(cd ../.. && sbt publishLocal)
 
 # Compilation
 ./scripts/jenkins/compile.sh

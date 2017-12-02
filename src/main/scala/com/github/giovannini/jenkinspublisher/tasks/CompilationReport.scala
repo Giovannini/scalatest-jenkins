@@ -14,8 +14,12 @@ case class CompilationReport(
 )
 
 object CompilationReport {
-  def task() = {
-    val compilationOutput: Stream[String] = Process("sbt -Dsbt.log.noformat=true compile").lineStream_!
+  def task(): Unit = {
+    val compilationOutput: Seq[String] = Process(
+      "sbt -Dsbt.log.noformat=true clean test:compile"
+    ).lineStream_!
+
+    compilationOutput.foreach(println)
 
     val warnings = parseReports("warn", compilationOutput)
     val errors = parseReports("error", compilationOutput)
@@ -23,16 +27,21 @@ object CompilationReport {
     val githubMessages: Seq[GitHubMessage] =
       sys.env.get("ghprbActualCommit") match {
         case Some(commitId) =>
-          (  warnings.flatMap(GitHubMessage("warning", commitId, _, modifiedFiles, allFiles))
-          ++ errors.flatMap(GitHubMessage("error", commitId, _, modifiedFiles, allFiles))
-          )
+          Seq(
+            ("warning", warnings),
+            ("error", errors)
+          ).flatMap { case (message, reports) =>
+              reports.flatMap(GitHubMessage(message, commitId, _, modifiedFiles, allFiles))
+            }
         case _ =>
           println("Please set env variable 'ghprbActualCommit'.")
           Seq.empty[GitHubMessage]
       }
 
-    if (githubMessages.nonEmpty)
+    if (githubMessages.nonEmpty) {
       GithubPublisher.publishTestResult(githubMessages)
+      sys.exit(1)
+    }
   }
 
   private def modifiedFiles: Seq[String] = {

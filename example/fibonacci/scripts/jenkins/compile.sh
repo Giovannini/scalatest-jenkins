@@ -6,9 +6,7 @@ logging() {
 
 
 logging "Compiling the project"
-sbt compilationReport
-sbt -v $SBT_OPTS test:compile \
-  || (
-    logging "Aborting the build: failed to compile the project"
-    exit 1
-  )
+sbt compilationReport || (
+  logging "Aborting the build: failed to compile the project"
+  exit 1
+)
