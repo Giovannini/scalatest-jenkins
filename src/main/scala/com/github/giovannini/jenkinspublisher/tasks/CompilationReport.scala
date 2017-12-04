@@ -26,16 +26,18 @@ object CompilationReport {
 
     val githubMessages: Seq[GitHubMessage] =
       sys.env.get("ghprbActualCommit") match {
+        case None =>
+          println("Please set env variable 'ghprbActualCommit'.")
+          Seq.empty[GitHubMessage]
+
         case Some(commitId) =>
           Seq(
             ("warning", warnings),
             ("error", errors)
           ).flatMap { case (message, reports) =>
-              reports.flatMap(GitHubMessage(message, commitId, _, modifiedFiles, allFiles))
-            }
-        case _ =>
-          println("Please set env variable 'ghprbActualCommit'.")
-          Seq.empty[GitHubMessage]
+            println(s"${reports.length} report${if (reports.length > 1) "s" else ""} found for $message messages.")
+            reports.flatMap(GitHubMessage(message, commitId, _, modifiedFiles, allFiles))
+          }
       }
 
     if (githubMessages.nonEmpty) {
@@ -55,11 +57,14 @@ object CompilationReport {
   }
 
   private def parseReports(kind: String, lines: Seq[String]): Seq[Report] = {
-    def reports: P[Seq[Report]] = P( report.rep )
-    def report: P[Report] = P( reportFirstLine ~ reportLines.rep(1) ).map(reportFromTree)
+    def reports: P[Seq[Report]] = P(report.rep)
+
+    def report: P[Report] =
+      P(reportFirstLine ~ reportLines.rep(1)).map(reportFromTree)
     def reportFirstLine = P( CharsWhile(_ != ':').! ~ ":" ~ number ~ ":" ~ number ~ ": " ~ CharsWhile(_ != '\n').! ~ "\n" )
-    def reportLines: P[String] = P( &(CharsWhile(_ != '/')) ~ CharsWhile(_ != '\n').! ~ "\n" )
-    def number: P[Int] = P( CharIn('0' to '9').rep(1).!.map(_.toInt) )
+    def reportLines: P[String] =
+      P(&(CharsWhile(_ != '/')) ~ CharsWhile(_ != '\n').! ~ "\n")
+    def number: P[Int] = P(CharIn('0' to '9').rep(1).!.map(_.toInt))
 
     val input = lines
       .filter(_.startsWith(s"[$kind]"))
