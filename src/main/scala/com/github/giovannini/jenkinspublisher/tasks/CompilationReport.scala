@@ -14,25 +14,36 @@ case class CompilationReport(
 )
 
 object CompilationReport {
-  def task() = {
-    val compilationOutput: Stream[String] = Process("sbt -Dsbt.log.noformat=true compile").lineStream_!
+  def task(): Unit = {
+    val compilationOutput: Seq[String] = Process(
+      "sbt -Dsbt.log.noformat=true clean test:compile"
+    ).lineStream_!
+
+    compilationOutput.foreach(println)
 
     val warnings = parseReports("warn", compilationOutput)
     val errors = parseReports("error", compilationOutput)
 
     val githubMessages: Seq[GitHubMessage] =
       sys.env.get("ghprbActualCommit") match {
-        case Some(commitId) =>
-          (  warnings.flatMap(GitHubMessage("warning", commitId, _, modifiedFiles, allFiles))
-          ++ errors.flatMap(GitHubMessage("error", commitId, _, modifiedFiles, allFiles))
-          )
-        case _ =>
+        case None =>
           println("Please set env variable 'ghprbActualCommit'.")
           Seq.empty[GitHubMessage]
+
+        case Some(commitId) =>
+          Seq(
+            ("warning", warnings),
+            ("error", errors)
+          ).flatMap { case (message, reports) =>
+            println(s"${reports.length} report${if (reports.length > 1) "s" else ""} found for $message messages.")
+            reports.flatMap(GitHubMessage(message, commitId, _, modifiedFiles, allFiles))
+          }
       }
 
-    if (githubMessages.nonEmpty)
+    if (githubMessages.nonEmpty) {
       GithubPublisher.publishTestResult(githubMessages)
+      sys.exit(1)
+    }
   }
 
   private def modifiedFiles: Seq[String] = {
@@ -46,11 +57,14 @@ object CompilationReport {
   }
 
   private def parseReports(kind: String, lines: Seq[String]): Seq[Report] = {
-    def reports: P[Seq[Report]] = P( report.rep )
-    def report: P[Report] = P( reportFirstLine ~ reportLines.rep(1) ).map(reportFromTree)
+    def reports: P[Seq[Report]] = P(report.rep)
+
+    def report: P[Report] =
+      P(reportFirstLine ~ reportLines.rep(1)).map(reportFromTree)
     def reportFirstLine = P( CharsWhile(_ != ':').! ~ ":" ~ number ~ ":" ~ number ~ ": " ~ CharsWhile(_ != '\n').! ~ "\n" )
-    def reportLines: P[String] = P( &(CharsWhile(_ != '/')) ~ CharsWhile(_ != '\n').! ~ "\n" )
-    def number: P[Int] = P( CharIn('0' to '9').rep(1).!.map(_.toInt) )
+    def reportLines: P[String] =
+      P(&(CharsWhile(_ != '/')) ~ CharsWhile(_ != '\n').! ~ "\n")
+    def number: P[Int] = P(CharIn('0' to '9').rep(1).!.map(_.toInt))
 
     val input = lines
       .filter(_.startsWith(s"[$kind]"))

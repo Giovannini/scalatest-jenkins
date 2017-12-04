@@ -1,27 +1,24 @@
-name := "bacasable"
+import sbt.Keys._
+import sbt._
 
-version := "0.1"
-
-scalaVersion := "2.12.4"
-
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
-
-lazy val realProject = application("project", "src/project")
-
-def application(id: String, path: String) = {
-  Project(
-    id = id,
-    base = file(path)
-  ).enablePlugins(BuildInfoPlugin, JavaAppPackaging)
-    .settings(
-      buildInfoKeys := Seq[BuildInfoKey](
-        name,
-        version,
-        scalaVersion
-      ),
-      buildInfoPackage := "sbt",
-      buildInfoOptions += BuildInfoOption.BuildTime,
-      javaOptions in Universal += "-Dfile.encoding=UTF-8",
-      scalacOptions ++= Seq("-deprecation")
-    )
-}
+lazy val root = (project in file(".")).
+  settings(
+    name := "jenkinspublisher",
+    version := "0.0.2-SNAPSHOT",
+    organization := "com.github.giovannini",
+    scalaVersion := "2.12.4",
+    sbtPlugin := true,
+    sbtVersion := "1.0.0",
+    libraryDependencies ++= Seq(
+      "com.lihaoyi"             %% "fastparse"  % "0.4.2",
+      "com.softwaremill.sttp"   %% "core"       % "1.1.1",
+      "org.scala-lang.modules"  %% "scala-xml"  % "1.0.6"
+    ),
+    scalacOptions ++= Seq(
+      "-unchecked",
+      "-deprecation"
+    ),
+    publishMavenStyle := true,
+    publishTo := Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/content/repositories/snapshots"),
+    pomIncludeRepository := { _ => false }
+  )

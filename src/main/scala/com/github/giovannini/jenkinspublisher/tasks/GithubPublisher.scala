@@ -18,6 +18,7 @@ object GithubPublisher {
         val ghprbPullLink = s"https://api.github.com/repos/$ghprbGhRepository/pulls/$ghprbPullId/comments"
         val ghprbIssueLink = s"https://api.github.com/repos/$ghprbGhRepository/issues/$ghprbPullId/comments"
 
+        println(s"Sending message to Github PR $ghprbPullLink")
         githubMessage
           .foreach(send(ghprbPullLink, ghprbIssueLink))
     }

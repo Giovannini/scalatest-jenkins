@@ -8,7 +8,7 @@ import com.github.giovannini.jenkinspublisher.utils.GitCommands
 object ReadTest {
 
   def task(): Unit = {
-    val testReportsDirectoryName = "src/project/target/test-reports"
+    val testReportsDirectoryName = "target/test-reports"
     val testReportsDirectory = new File(testReportsDirectoryName)
 
     if (testReportsDirectory.isDirectory) {
@@ -25,7 +25,8 @@ object ReadTest {
       println("Please set env variable 'ghprbActualCommit'.")
       Seq.empty[GitHubMessage]
     } { commitId =>
-      for {
+      println(s"Parsing test files for commit $commitId...")
+      val result = for {
         file <- testReportsDirectory.listFiles().toSeq
         if file.isFile
         testCase <- scala.xml.XML.loadFile(file) \\ "testsuite" \\ "testcase"
@@ -33,6 +34,8 @@ object ReadTest {
         message <- failure.attribute("message").toSeq
         gitHubMessage <- GitHubMessage(message, commitId, testCase, modifiedFiles, allFiles, failure).toSeq
       } yield gitHubMessage
+      println(s"Test files parsed. ${result.length} message${if (result.length > 1) "s" else ""} to send.")
+      result
     }
   }
 
